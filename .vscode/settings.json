@@ -1,0 +1,7 @@
+{
+   "workbench.tree.indent": 3,
+   "editor.formatOnSave": true,
+   "editor.codeActionsOnSave": {
+  "source.fixAll": true,
+},
+}
