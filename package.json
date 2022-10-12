@@ -1,0 +1,23 @@
+{
+  "name": "projetopdv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarlosEmannoel16/Pdv.git"
+  },
+  "author": "Carlos Emannoel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CarlosEmannoel16/Pdv/issues"
+  },
+  "homepage": "https://github.com/CarlosEmannoel16/Pdv#readme",
+  "devDependencies": {
+    "@types/node": "^18.8.4",
+    "typescript": "^4.8.4"
+  }
+}
