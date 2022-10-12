@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test-pre-commit": "jest --passWithNoTests",
     "test": "jest --passWithNoTests --watch",
     "prepare": "husky install"
   },
