@@ -1,22 +1,17 @@
-export class SignUpController {
-  handle (http: any): any {
-    if (!http.name) {
-      return {
-        statusCode: 400,
-        body: new Error('Esta faltando os parametros: name')
-      }
+import { HttpRequest, HttpResponse } from '../protocols/http'
+import { badRequest } from '../helpers/badRequest'
+import { MissingParamError } from '../errors/MissingError'
+import { Controller } from '../protocols/controller'
+export class SignUpController implements Controller {
+  handle (httpRequest: HttpRequest): HttpResponse {
+    const requiredFields = ['name', 'password', 'role']
+
+    for (const field of requiredFields) {
+      if (!httpRequest.body[field]) return badRequest(new MissingParamError(field))
     }
-    if (!http.password) {
-      return {
-        statusCode: 400,
-        body: new Error('Esta faltando os parametros: password')
-      }
-    }
-    if (!http.role) {
-      return {
-        statusCode: 400,
-        body: new Error('Esta faltando os parametros: role')
-      }
+    return {
+      statusCode: 200,
+      body: ' ok'
     }
   }
 }
