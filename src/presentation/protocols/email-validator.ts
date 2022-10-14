@@ -1,3 +1,3 @@
 export interface EmailValidator {
-  isValid: (email: string) => boolean | Error
+  isValid: (email: string) => boolean
 }

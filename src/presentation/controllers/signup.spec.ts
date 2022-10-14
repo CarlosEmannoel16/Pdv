@@ -10,22 +10,6 @@ interface SutParam {
   emailValidatorStub: EmailValidator
 }
 
-const makeSutWithError = (): SutParam => {
-  class EmailValidatorStubWithError implements EmailValidator {
-    isValid (): boolean {
-      throw new ServerError()
-    }
-  }
-  const emailValidatorStub = new EmailValidatorStubWithError()
-  const sut = new SignUpController(emailValidatorStub)
-
-  return {
-    sut,
-    emailValidatorStub
-
-  }
-}
-
 const makeSut = (): SutParam => {
   class EmailValidatorStub implements EmailValidator {
     isValid (): boolean {
@@ -117,7 +101,10 @@ describe('Testanto Cadastro de Usuário', () => {
   })
 
   test('Tem que da erro 500 ao ter algum error inesperado', () => {
-    const { sut } = makeSutWithError()
+    const { sut, emailValidatorStub } = makeSut()
+    jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
+      throw new Error()
+    })
 
     const httpRequest = {
       body: {
