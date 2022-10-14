@@ -3,10 +3,27 @@ import { MissingParamError } from '../errors/MissingError'
 import { Controller } from '../protocols/controller'
 import { EmailValidator } from '../protocols/email-validator'
 import { InvalidParam } from '../errors/InvalidParam'
+import { ServerError } from '../errors/ServerError'
 
 interface SutParam {
   sut: Controller
   emailValidatorStub: EmailValidator
+}
+
+const makeSutWithError = (): SutParam => {
+  class EmailValidatorStubWithError implements EmailValidator {
+    isValid (): boolean {
+      throw new ServerError()
+    }
+  }
+  const emailValidatorStub = new EmailValidatorStubWithError()
+  const sut = new SignUpController(emailValidatorStub)
+
+  return {
+    sut,
+    emailValidatorStub
+
+  }
 }
 
 const makeSut = (): SutParam => {
@@ -97,5 +114,22 @@ describe('Testanto Cadastro de Usuário', () => {
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParam('email'))
+  })
+
+  test('Tem que da erro 500 ao ter algum error inesperado', () => {
+    const { sut } = makeSutWithError()
+
+    const httpRequest = {
+      body: {
+        name: 'nomeTest',
+        password: 'senhaTeste',
+        role: 'teste',
+        email: 'email@testeh.br'
+      }
+    }
+
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 })
