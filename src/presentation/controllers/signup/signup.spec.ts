@@ -1,10 +1,10 @@
 import { SignUpController } from './signup'
-import { MissingParamError } from '../errors/MissingError'
-import { Controller } from '../protocols/controller'
-import { EmailValidator } from '../protocols/email-validator'
-import { InvalidParam, ServerError } from '../errors'
-import { AddAccountModel, AddAccount } from '../../domain/usecases/add-account'
-import { AccountModel } from '../../domain/models/account'
+import { MissingParamError } from '../../errors/MissingError'
+import { Controller } from '../../protocols/controller'
+import { EmailValidator } from '../../protocols/email-validator'
+import { InvalidParam, ServerError } from '../../errors'
+import { AddAccountModel, AddAccount } from '../../../domain/usecases/add-account'
+import { AccountModel } from '../../../domain/models/account'
 
 interface SutParam {
   sut: Controller
@@ -120,9 +120,29 @@ describe('Testanto Cadastro de Usuário', () => {
     expect(httpResponse.body).toEqual(new InvalidParam('email'))
   })
 
-  test('Tem que da erro 500 ao ter algum error inesperado', () => {
+  test('Tem que da erro 500 ao ter algum error inesperado no EmailValidate', () => {
     const { sut, emailValidatorStub } = makeSut()
     jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const httpRequest = {
+      body: {
+        name: 'nomeTest',
+        password: 'senhaTeste',
+        role: 'teste',
+        email: 'email@testeh.br'
+      }
+    }
+
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Tem que da erro 500 ao ter algum error inesperado no AddAccount', () => {
+    const { sut, AddAccountStub } = makeSut()
+    jest.spyOn(AddAccountStub, 'add').mockImplementationOnce(() => {
       throw new Error()
     })
 
@@ -179,6 +199,27 @@ describe('Testanto Cadastro de Usuário', () => {
       password: 'senhaTeste',
       role: 'teste',
       email: 'email@testeh.br'
+    })
+  })
+  test('Tem que da status 200 ao da tudo certo', () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'nomeTest',
+        password: 'senhaTeste',
+        role: 'teste',
+        email: 'email@testeh.br'
+      }
+    }
+
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse.body).toEqual({
+      id: 'idValid',
+      name: 'validName',
+      email: 'validEmail',
+      password: 'validPassword',
+      role: 'validRole'
     })
   })
 })
