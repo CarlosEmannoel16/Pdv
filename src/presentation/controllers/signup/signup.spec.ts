@@ -14,7 +14,7 @@ interface SutParam {
 
 const makeAddAccont = (): AddAccount => {
   class AddAccountStub implements AddAccount {
-    add (account: AddAccountModel): AccountModel {
+    async add (account: AddAccountModel): Promise<AccountModel> {
       const fakeAccount = {
         id: 'idValid',
         name: 'validName',
@@ -22,7 +22,7 @@ const makeAddAccont = (): AddAccount => {
         password: 'validPassword',
         role: 'validRole'
       }
-      return fakeAccount
+      return await new Promise(resolve => resolve(fakeAccount))
     }
   }
   return new AddAccountStub()
@@ -47,7 +47,7 @@ const makeSut = (): SutParam => {
 }
 
 describe('Testanto Cadastro de Usuário', () => {
-  test('Tem que da erro 400 ao não receber o => nome', () => {
+  test('Tem que da erro 400 ao não receber o => nome', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -58,11 +58,11 @@ describe('Testanto Cadastro de Usuário', () => {
 
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('name'))
   })
-  test('Tem que da erro 400 ao não receber  => password', () => {
+  test('Tem que da erro 400 ao não receber  => password', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -72,11 +72,11 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('password'))
   })
-  test('Tem que da erro 400 ao não receber a => role', () => {
+  test('Tem que da erro 400 ao não receber a => role', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -85,11 +85,11 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('role'))
   })
-  test('Tem que da erro 400 ao não receber a => email', () => {
+  test('Tem que da erro 400 ao não receber a => email', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -99,11 +99,11 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('email'))
   })
-  test('Tem que da erro 400 ao enviar email Inválido', () => {
+  test('Tem que da erro 400 ao enviar email Inválido', async () => {
     const { sut, emailValidatorStub } = makeSut()
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
     const httpRequest = {
@@ -115,12 +115,12 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParam('email'))
   })
 
-  test('Tem que da erro 500 ao ter algum error inesperado no EmailValidate', () => {
+  test('Tem que da erro 500 ao ter algum error inesperado no EmailValidate', async () => {
     const { sut, emailValidatorStub } = makeSut()
     jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
       throw new Error()
@@ -135,12 +135,12 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('Tem que da erro 500 ao ter algum error inesperado no AddAccount', () => {
+  test('Tem que da erro 500 ao ter algum error inesperado no AddAccount', async () => {
     const { sut, AddAccountStub } = makeSut()
     jest.spyOn(AddAccountStub, 'add').mockImplementationOnce(() => {
       throw new Error()
@@ -155,12 +155,12 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('Tem que da erro 500 ao ter algum error inesperado', () => {
+  test('Tem que da erro 500 ao ter algum error inesperado', async () => {
     const { sut, emailValidatorStub } = makeSut()
     jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
       throw new Error()
@@ -175,12 +175,12 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('Meu SignupController tem que usar Corretamente o AddAccount', () => {
+  test('Meu SignupController tem que usar Corretamente o AddAccount', async () => {
     const { sut, AddAccountStub } = makeSut()
     const addSpy = jest.spyOn(AddAccountStub, 'add')
 
@@ -192,7 +192,7 @@ describe('Testanto Cadastro de Usuário', () => {
         email: 'email@testeh.br'
       }
     }
-    sut.handle(httpRequest)
+    await sut.handle(httpRequest)
 
     expect(addSpy).toHaveBeenCalledWith({
       name: 'nomeTest',
@@ -201,7 +201,7 @@ describe('Testanto Cadastro de Usuário', () => {
       email: 'email@testeh.br'
     })
   })
-  test('Tem que da status 200 ao da tudo certo', () => {
+  test('Tem que da status 200 ao da tudo certo', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -212,7 +212,7 @@ describe('Testanto Cadastro de Usuário', () => {
       }
     }
 
-    const httpResponse = sut.handle(httpRequest)
+    const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(200)
     expect(httpResponse.body).toEqual({
       id: 'idValid',
