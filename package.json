@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test-pre-commit": "jest --passWithNoTests",
-    "test": "jest --passWithNoTests --watch",
+    "test": "jest --passWithNoTests --silent --runInBand",
+    "test-pre-commit": "npm test --findRelatedTests",
+    "test-unit": "npm test -- --watch -c jest-unit-config.js",
+    "test-verbose": "jest --passWithNoTests",
+    "test-integration": "npm test -- --watch -c jest-integration-config.js",
+    "test-ci": "npm test -- --coverage",
     "prepare": "husky install"
   },
   "repository": {
